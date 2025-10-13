@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4D Visualizer - THREE.js</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+        
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 250px;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #ccc;
+        }
+        
+        select, input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+        
+        select option {
+            background: #333;
+            color: white;
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: #333;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #4CAF50;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #4CAF50;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+        }
+        
+        #info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+            max-width: 300px;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="canvas-container"></div>
+        
+        <div id="controls">
+            <h3 style="margin-top: 0; color: #4CAF50;">4D Visualizer Controls</h3>
+            
+            <div class="control-group">
+                <label for="model-select">4D Model:</label>
+                <select id="model-select">
+                    <option value="tesseract">Tesseract (4D Cube)</option>
+                    <option value="hypersphere">4D Hypersphere</option>
+                    <option value="hyperplane">4D Hyperplane</option>
+                    <option value="klein-bottle">Klein Bottle</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="rotation-x">Rotate around X-axis: <span id="rot-x-value">0°</span></label>
+                <input type="range" id="rotation-x" min="0" max="360" value="0">
+            </div>
+            
+            <div class="control-group">
+                <label for="rotation-y">Rotate around Y-axis: <span id="rot-y-value">0°</span></label>
+                <input type="range" id="rotation-y" min="0" max="360" value="0">
+            </div>
+            
+            <div class="control-group">
+                <label for="rotation-z">Rotate around Z-axis: <span id="rot-z-value">0°</span></label>
+                <input type="range" id="rotation-z" min="0" max="360" value="0">
+            </div>
+            
+            <div class="control-group">
+                <label for="rotation-w">Rotate around W-axis: <span id="rot-w-value">0°</span></label>
+                <input type="range" id="rotation-w" min="0" max="360" value="0">
+            </div>
+            
+            <div class="control-group">
+                <label for="projection">Projection Type:</label>
+                <select id="projection">
+                    <option value="perspective">Perspective</option>
+                    <option value="orthographic">Orthographic</option>
+                    <option value="stereographic">Stereographic</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="animation-speed">Animation Speed: <span id="anim-speed-value">2.0</span></label>
+                <input type="range" id="animation-speed" min="0" max="3" step="0.1" value="2">
+            </div>
+            
+            <button id="auto-rotate">Toggle Auto Rotation</button>
+            <button id="reset-view">Reset View</button>
+        </div>
+        
+        <div id="info">
+            <h4 style="margin-top: 0; color: #4CAF50;">About 4D Visualization</h4>
+            <p>This visualizer projects 4-dimensional objects into 3D space using mathematical transformations. The W-axis represents the fourth dimension.</p>
+            <p><strong>Controls:</strong> Use the sliders to rotate the 4D object around different axes. X, Y, Z rotations work like traditional 3D rotations, while W rotation is the 4th dimension rotation.</p>
+        </div>
+        
+        <div id="loading" class="loading">Loading 4D Visualizer...</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="js/4DGeometry.js"></script>
+    <script src="js/4DProjection.js"></script>
+    <script src="js/4DVisualizer.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/demo.js"></script>
+</body>
+</html>

@@ -156,5 +156,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Advanced lighting and shading
 - Interactive 4D slicing
 - Real-time model generation
-"# 4D-Visualizer" 
-"# 4D-Visualizer" 
