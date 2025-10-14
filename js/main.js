@@ -39,6 +39,11 @@ class App4D {
         }
         
         this.visualizer = new Visualizer4D(container);
+        
+        // Set up callback for rotation updates
+        this.visualizer.onRotationUpdate = (x, y, z, w) => {
+            this.updateRotationSliders(x, y, z, w);
+        };
     }
 
     setupUI() {
@@ -47,15 +52,88 @@ class App4D {
         this.setupProjectionControls();
         this.setupAnimationControls();
         this.setupButtons();
+        this.setupInfoPanel();
     }
 
     setupModelSelector() {
+        // Setup custom dropdown
+        const dropdownSelected = document.getElementById('dropdown-selected');
+        const dropdownOptions = document.getElementById('dropdown-options');
         const modelSelect = document.getElementById('model-select');
+        
+        if (dropdownSelected && dropdownOptions) {
+            // Toggle dropdown on click
+            dropdownSelected.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleDropdown();
+            });
+            
+            // Handle option selection
+            dropdownOptions.addEventListener('click', (e) => {
+                if (e.target.classList.contains('dropdown-option')) {
+                    const value = e.target.getAttribute('data-value');
+                    const text = e.target.textContent;
+                    
+                    // Update selected text
+                    dropdownSelected.querySelector('span:first-child').textContent = text;
+                    
+                    // Update hidden select for compatibility
+                    if (modelSelect) {
+                        modelSelect.value = value;
+                        modelSelect.dispatchEvent(new Event('change'));
+                    }
+                    
+                    // Update visualizer
+                    this.visualizer.loadModel(value);
+                    
+                    // Close dropdown
+                    this.closeDropdown();
+                }
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.custom-dropdown')) {
+                    this.closeDropdown();
+                }
+            });
+        }
+        
+        // Keep original select for compatibility
         if (modelSelect) {
             modelSelect.addEventListener('change', (e) => {
                 this.visualizer.loadModel(e.target.value);
             });
         }
+    }
+    
+    toggleDropdown() {
+        const dropdownSelected = document.getElementById('dropdown-selected');
+        const dropdownOptions = document.getElementById('dropdown-options');
+        
+        if (dropdownOptions.classList.contains('show')) {
+            this.closeDropdown();
+        } else {
+            this.openDropdown();
+        }
+    }
+    
+    openDropdown() {
+        const dropdownSelected = document.getElementById('dropdown-selected');
+        const dropdownOptions = document.getElementById('dropdown-options');
+        
+        dropdownSelected.classList.add('active');
+        dropdownOptions.classList.add('show');
+        document.body.classList.add('dropdown-open');
+    }
+    
+    closeDropdown() {
+        const dropdownSelected = document.getElementById('dropdown-selected');
+        const dropdownOptions = document.getElementById('dropdown-options');
+        
+        dropdownSelected.classList.remove('active');
+        dropdownOptions.classList.remove('show');
+        document.body.classList.remove('dropdown-open');
     }
 
     setupRotationControls() {
@@ -118,6 +196,11 @@ class App4D {
         }
     }
 
+    setupInfoPanel() {
+        // Info panel is handled by onclick in HTML
+        console.log('Info panel setup - using HTML onclick handler');
+    }
+
     updateRotation() {
         if (!this.visualizer) return;
         
@@ -132,6 +215,23 @@ class App4D {
     getRotationValue(controlId) {
         const control = document.getElementById(controlId);
         return control ? parseFloat(control.value) : 0;
+    }
+
+    updateRotationSliders(xDegrees, yDegrees, zDegrees, wDegrees) {
+        const rotationControls = ['rotation-x', 'rotation-y', 'rotation-z', 'rotation-w'];
+        const valueDisplays = ['rot-x-value', 'rot-y-value', 'rot-z-value', 'rot-w-value'];
+        const values = [xDegrees, yDegrees, zDegrees, wDegrees];
+        
+        rotationControls.forEach((controlId, index) => {
+            const control = document.getElementById(controlId);
+            const valueDisplay = document.getElementById(valueDisplays[index]);
+            
+            if (control && valueDisplay) {
+                // Update slider value and display without triggering input event
+                control.value = Math.round(values[index]);
+                valueDisplay.textContent = `${Math.round(values[index])}°`;
+            }
+        });
     }
 
     resetRotationControls() {

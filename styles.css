@@ -1,0 +1,574 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+}
+
+#container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+#canvas-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+#canvas-container canvas {
+    pointer-events: auto;
+}
+
+#controls {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(0, 0, 0, 0.85);
+    padding: 25px;
+    padding-bottom: 35px;
+    border-radius: 12px;
+    color: white;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 350px;
+    max-width: calc(100vw - 30px);
+    max-height: calc(100vh - 30px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 10;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Custom scrollbar for the controls panel */
+#controls::-webkit-scrollbar {
+    width: 8px;
+}
+
+#controls::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+#controls::-webkit-scrollbar-thumb {
+    background: rgba(76, 175, 80, 0.6);
+    border-radius: 4px;
+}
+
+#controls::-webkit-scrollbar-thumb:hover {
+    background: rgba(76, 175, 80, 0.8);
+}
+
+/* Firefox scrollbar */
+#controls {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(76, 175, 80, 0.6) rgba(255, 255, 255, 0.1);
+}
+
+.control-group {
+    margin-bottom: 18px;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: #ccc;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #444;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 16px;
+    box-sizing: border-box;
+    font-weight: 500;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+    transition: all 0.3s ease;
+}
+
+/* Custom dropdown styling */
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-selected {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #444;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 16px;
+    box-sizing: border-box;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+.dropdown-selected:hover {
+    border-color: #4CAF50;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.dropdown-selected.active {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='18,15 12,9 6,15'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+.dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(26, 26, 26, 0.95);
+    border: 2px solid #4CAF50;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    backdrop-filter: blur(10px);
+}
+
+.dropdown-options.show {
+    display: block;
+}
+
+/* Prevent background scroll when dropdown is open */
+body.dropdown-open {
+    overflow: hidden;
+}
+
+.dropdown-option {
+    padding: 12px 15px;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-option:last-child {
+    border-bottom: none;
+}
+
+.dropdown-option:hover {
+    background: #4CAF50;
+    color: white;
+    font-weight: 600;
+}
+
+.dropdown-option.selected {
+    background: #4CAF50;
+    color: white;
+    font-weight: 700;
+}
+
+/* Custom scrollbar for dropdown options */
+.dropdown-options::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dropdown-options::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.dropdown-options::-webkit-scrollbar-thumb {
+    background: rgba(76, 175, 80, 0.6);
+    border-radius: 3px;
+}
+
+.dropdown-options::-webkit-scrollbar-thumb:hover {
+    background: rgba(76, 175, 80, 0.8);
+}
+
+/* Firefox scrollbar for dropdown options */
+.dropdown-options {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(76, 175, 80, 0.6) rgba(255, 255, 255, 0.1);
+}
+
+select:hover {
+    border-color: #4CAF50;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+select option {
+    background: #1a1a1a !important;
+    color: #ffffff !important;
+    padding: 12px 15px !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    border: none !important;
+    margin: 2px 0 !important;
+    border-radius: 4px !important;
+    line-height: 1.4 !important;
+}
+
+select option:hover {
+    background: #4CAF50 !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+select option:checked,
+select option:selected {
+    background: #4CAF50 !important;
+    color: white !important;
+    font-weight: 700 !important;
+}
+
+select option:focus {
+    background: #4CAF50 !important;
+    color: white !important;
+    outline: none !important;
+}
+
+/* Styling for different browsers */
+select option::-moz-focus-inner {
+    border: 0 !important;
+}
+
+/* Webkit specific styling */
+select option::-webkit-option {
+    background: #1a1a1a !important;
+    color: white !important;
+    padding: 12px 15px !important;
+}
+
+select option::-webkit-option:hover {
+    background: #4CAF50 !important;
+    color: white !important;
+}
+
+/* Additional styling for better appearance */
+select option:first-child {
+    border-top-left-radius: 4px !important;
+    border-top-right-radius: 4px !important;
+}
+
+select option:last-child {
+    border-bottom-left-radius: 4px !important;
+    border-bottom-right-radius: 4px !important;
+}
+
+/* Styling for disabled options */
+select option:disabled {
+    background: #333 !important;
+    color: #666 !important;
+    font-style: italic !important;
+}
+
+/* Better spacing between options */
+select option:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+input[type="range"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #444;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 16px;
+    box-sizing: border-box;
+    font-weight: 500;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 10px;
+    outline: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+input[type="range"]:hover {
+    border-color: #4CAF50;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+input[type="range"]:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    background: #4CAF50;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+    border: 2px solid #fff;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    background: #4CAF50;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+button:not(.close-btn) {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 8px 0;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+button:not(.close-btn):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+/* Specific styling for the last button */
+#reset-view {
+    margin-bottom: 30px !important;
+}
+
+#info {
+    position: absolute !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    top: auto !important;
+    left: auto !important;
+    background: rgba(0, 0, 0, 0.85);
+    padding: 20px;
+    border-radius: 12px;
+    color: white;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 14px;
+    max-width: 350px;
+    z-index: 100 !important;
+    display: block !important;
+    pointer-events: auto !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    line-height: 1.5;
+}
+
+.close-btn {
+    position: absolute !important;
+    top: 5px !important;
+    right: 5px !important;
+    background: none;
+    color: white !important;
+    /* border: 3px solid yellow !important; */
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    font-size: 24px !important;
+    font-weight: bold !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s ease;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 1000 !important;
+    pointer-events: auto !important;
+    /* box-shadow: 0 0 10px rgba(255, 255, 0, 0.8) !important; */
+}
+
+.close-btn:hover {
+    /* background: rgba(255, 0, 0, 0.9); */
+    transform: scale(1.1);
+}
+
+.loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 18px;
+}
+
+#info.hidden {
+    display: none !important;
+}
+
+/* Header styling */
+#controls h3 {
+    margin: 0 0 20px 0 !important;
+    font-size: 20px !important;
+    color: #4CAF50 !important;
+    text-align: center;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(76, 175, 80, 0.3);
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    #controls {
+        width: calc(100vw - 30px);
+        max-width: 400px;
+        padding: 20px;
+        padding-bottom: 30px;
+        top: 10px;
+        left: 10px;
+    }
+    
+    .control-group {
+        margin-bottom: 15px;
+    }
+    
+    .control-group label {
+        font-size: 15px;
+        margin-bottom: 6px;
+    }
+    
+    select {
+        padding: 10px 12px;
+        padding-right: 35px;
+        font-size: 15px;
+        background-size: 14px;
+    }
+    
+    input[type="range"] {
+        padding: 10px 12px;
+        font-size: 15px;
+    }
+    
+    select option {
+        font-size: 15px !important;
+        padding: 10px 12px !important;
+        margin: 1px 0 !important;
+    }
+    
+    button:not(.close-btn) {
+        padding: 12px 20px;
+        font-size: 15px;
+        margin: 6px 0;
+        margin-bottom: 12px;
+    }
+    
+    #controls h3 {
+        font-size: 18px !important;
+        margin-bottom: 18px !important;
+    }
+    
+    #info {
+        bottom: 15px !important;
+        right: 15px !important;
+        max-width: calc(100vw - 30px);
+        padding: 15px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    #controls {
+        width: calc(100vw - 20px);
+        padding: 15px;
+        padding-bottom: 25px;
+        top: 10px;
+        left: 10px;
+    }
+    
+    .control-group {
+        margin-bottom: 12px;
+    }
+    
+    .control-group label {
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+    
+    select {
+        padding: 8px 10px;
+        padding-right: 30px;
+        font-size: 14px;
+        background-size: 12px;
+    }
+    
+    input[type="range"] {
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+    
+    select option {
+        font-size: 14px !important;
+        padding: 8px 10px !important;
+        margin: 1px 0 !important;
+    }
+    
+    button:not(.close-btn) {
+        padding: 10px 15px;
+        font-size: 14px;
+        margin: 5px 0;
+        margin-bottom: 10px;
+    }
+    
+    #controls h3 {
+        font-size: 16px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    #info {
+        bottom: 10px !important;
+        right: 10px !important;
+        max-width: calc(100vw - 20px);
+        padding: 12px;
+        font-size: 12px;
+    }
+}

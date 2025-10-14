@@ -18,6 +18,9 @@ class Visualizer4D {
         this.animation = new Animation4D();
         this.colorMapping = new ColorMapping4D();
         
+        // Callback for UI updates
+        this.onRotationUpdate = null;
+        
         // THREE.js objects
         this.points = null;
         this.lines = null;
@@ -27,6 +30,10 @@ class Visualizer4D {
         this.models = {
             'tesseract': () => new Tesseract(2),
             'hypersphere': () => new Hypersphere4D(1, 24),
+            '3-sphere': () => new Sphere3D(1.5, 24),
+            'calabi-yau': () => new CalabiYauManifold(1.5, 20),
+            'hopf-fibration': () => new HopfFibration(2, 20),
+            'clifford-torus': () => new CliffordTorus(1.5, 24),
             'hyperplane': () => new Hyperplane4D(4, 20),
             'klein-bottle': () => new KleinBottle4D(1, 24),
             'pentachoron': () => new Pentachoron(2),
@@ -34,8 +41,14 @@ class Visualizer4D {
             'buckyball4d': () => new Buckyball4D(1),
             'hypertorus': () => new Hypertorus4D(1.2, 0.5, 32, 32),
             '24-cell': () => new Icositetrachoron(2),
+            '24-cell-dual': () => new Cell24Dual(2),
             '120-cell': () => new Hyperdodecahedron120Cell(2),
             '600-cell': () => new Hexacosichoron600Cell(2),
+            'duoprism': () => new Duoprism4D(3, 4, 2),
+            'polychoron-prism': () => new PolychoronPrism4D('cube', 2, 1),
+            'polychoron-antiprism': () => new PolychoronAntiprism4D('tetrahedron', 2, 1),
+            'e4-hyperdiamond': () => new E4Hyperdiamond(1.5, 2),
+            'f4-root-polytope': () => new F4RootPolytope(2),
             'e8-lattice': () => new E8Lattice4D(0.5, 2)
         };
         
@@ -288,6 +301,11 @@ class Visualizer4D {
     updateRotation(x, y, z, w) {
         this.rotation.setRotation(x, y, z, w);
         this.generate3DRepresentation();
+        
+        // Notify UI about rotation changes
+        if (this.onRotationUpdate) {
+            this.onRotationUpdate(x, y, z, w);
+        }
     }
 
     updateProjection(type, distance) {
@@ -322,12 +340,25 @@ class Visualizer4D {
         
         if (this.animation.autoRotate) {
             const rotations = this.animation.getRotationValues();
+            
             this.updateRotation(
                 rotations.x * Math.PI * 2,
                 rotations.y * Math.PI * 2,
                 rotations.z * Math.PI * 2,
                 rotations.w * Math.PI * 2
             );
+            
+            // Convert normalized values (-0.5 to 0.5) to degrees (0 to 360)
+            // Add 0.5 to shift range from [-0.5, 0.5] to [0, 1], then multiply by 360
+            const xDegrees = ((rotations.x + 0.5) * 360) % 360;
+            const yDegrees = ((rotations.y + 0.5) * 360) % 360;
+            const zDegrees = ((rotations.z + 0.5) * 360) % 360;
+            const wDegrees = ((rotations.w + 0.5) * 360) % 360;
+            
+            // Update UI sliders with current rotation values
+            if (this.onRotationUpdate) {
+                this.onRotationUpdate(xDegrees, yDegrees, zDegrees, wDegrees);
+            }
         }
         
         this.controls.update();

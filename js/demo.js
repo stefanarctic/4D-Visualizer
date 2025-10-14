@@ -83,13 +83,14 @@ function createInteractiveDemo() {
     demoContainer.style.cssText = `
         position: absolute;
         top: 20px;
-        right: 20px;
+        right: 350px;
         background: rgba(0, 0, 0, 0.8);
         padding: 15px;
         border-radius: 10px;
         color: white;
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 5;
     `;
     
     demoContainer.innerHTML = `
