@@ -28,7 +28,15 @@ class Visualizer4D {
             'tesseract': () => new Tesseract(2),
             'hypersphere': () => new Hypersphere4D(1, 24),
             'hyperplane': () => new Hyperplane4D(4, 20),
-            'klein-bottle': () => new KleinBottle4D(1, 24)
+            'klein-bottle': () => new KleinBottle4D(1, 24),
+            'pentachoron': () => new Pentachoron(2),
+            '16-cell': () => new Hexadecachoron(2),
+            'buckyball4d': () => new Buckyball4D(1),
+            'hypertorus': () => new Hypertorus4D(1.2, 0.5, 32, 32),
+            '24-cell': () => new Icositetrachoron(2),
+            '120-cell': () => new Hyperdodecahedron120Cell(2),
+            '600-cell': () => new Hexacosichoron600Cell(2),
+            'e8-lattice': () => new E8Lattice4D(0.5, 2)
         };
         
         this.init();
