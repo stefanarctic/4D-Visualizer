@@ -53,6 +53,7 @@ class App4D {
         this.setupAnimationControls();
         this.setupButtons();
         this.setupInfoPanel();
+        this.setupSidebarToggle();
     }
 
     setupModelSelector() {
@@ -199,6 +200,36 @@ class App4D {
     setupInfoPanel() {
         // Info panel is handled by onclick in HTML
         console.log('Info panel setup - using HTML onclick handler');
+    }
+
+    setupSidebarToggle() {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebarToggle');
+        if (!sidebar || !toggle) return;
+
+        const syncBodyClass = () => {
+            if (sidebar.classList.contains('collapsed')) {
+                document.body.classList.add('sidebar-collapsed');
+            } else {
+                document.body.classList.remove('sidebar-collapsed');
+            }
+        };
+
+        toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            syncBodyClass();
+        });
+
+        // Start collapsed on small screens
+        const mq = window.matchMedia('(max-width: 900px)');
+        const applyInitial = () => {
+            if (mq.matches) {
+                sidebar.classList.add('collapsed');
+            }
+        };
+        applyInitial();
+        syncBodyClass();
+        mq.addEventListener ? mq.addEventListener('change', applyInitial) : mq.addListener(applyInitial);
     }
 
     updateRotation() {
